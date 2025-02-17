@@ -4,7 +4,9 @@ A socketless inter-process communication library for Linux.  Uses inotify (https
 
 ## Build from Source
 
-### 1.&nbsp; Install a C++ compiler, Meson, and Git.
+### 1.&nbsp; Install a C++ compiler, Meson, Git, and cpp_result.
+
+Follow the instructions [here](https://github.com/cshmookler/cpp_result) to install cpp_result.
 
 #### Linux (Debian/Ubuntu):
 
