@@ -1,5 +1,6 @@
 // Standard includes
 #include <cstring>
+#include <filesystem>
 #include <fstream>
 #include <vector>
 
@@ -25,20 +26,43 @@ struct channel_t::local_state_t {
     int watcher_fd;
 };
 
+res::optional_t<std::filesystem::path> make_absolute(
+  const std::filesystem::path& path) {
+    if (path.is_absolute()) {
+        return path;
+    }
+
+    std::error_code error;
+    auto abs_path = std::filesystem::absolute(path, error);
+    if (error) {
+        return RES_NEW_ERROR(
+          "Failed to make a relative path absolute.\n\trelative path: "
+          + path.string() + "\n\terror: " + error.message());
+    }
+    return abs_path;
+}
+
 [[nodiscard]] res::optional_t<channel_t> make_channel(
   const std::filesystem::path& path) {
-    if (! std::filesystem::exists(path)) {
-        // Attempt to create the channel file if it doesn't exist.
-        std::ofstream file{ path };
+    // Ensure that the path to the channel file is absolute.
+    auto abs_path = make_absolute(path);
+    if (abs_path.has_error()) {
+        return RES_TRACE(abs_path.error());
+    }
+
+    // Ensure that the channel file exists.
+    if (! std::filesystem::exists(abs_path.value())) {
+        // Attempt to create the channel file if it does not exist.
+        std::ofstream file{ abs_path.value() };
         if (! file.is_open()) {
             return RES_NEW_ERROR("Failed to create the channel file.\n\tfile: '"
-              + path.string() + "'");
+              + abs_path->string() + "'");
         }
     }
-    if (! std::filesystem::is_regular_file(path)) {
+    if (! std::filesystem::is_regular_file(abs_path.value())) {
         return RES_NEW_ERROR(
           "The channel path exists but is not a regular file.\n\tpath: '"
-          + path.string() + "'");
+          + abs_path->string() + "'");
     }
 
     if (channel_t::global_state == nullptr) {
@@ -57,16 +81,18 @@ struct channel_t::local_state_t {
     // Events to generate notifications for.
     const auto event_mask = IN_CLOSE_WRITE;
 
-    int watcher_fd = inotify_add_watch(
-      channel_t::global_state->inotify_fd, path.string().c_str(), event_mask);
+    int watcher_fd = inotify_add_watch(channel_t::global_state->inotify_fd,
+      abs_path->string().c_str(),
+      event_mask);
     if (watcher_fd < 0) {
         return RES_NEW_ERROR(
-          "Failed to create a new watch on a file.\n\tfile: '" + path.string()
-          + "'\n\tinotify event mask: '" + std::to_string(event_mask) + "'");
+          "Failed to create a new watch on a file.\n\tfile: '"
+          + abs_path->string() + "'\n\tinotify event mask: '"
+          + std::to_string(event_mask) + "'");
     }
 
     channel_t::local_state_t local_state{};
-    local_state.path = path;
+    local_state.path = abs_path.value();
     local_state.watcher_fd = watcher_fd;
 
     return channel_t{ local_state };
@@ -115,8 +141,15 @@ std::filesystem::path channel_t::get_path() const {
     return this->local_state_->path;
 }
 
-void channel_t::set_path(const std::filesystem::path& path) {
-    this->local_state_->path = path;
+res::result_t channel_t::set_path(const std::filesystem::path& path) {
+    auto abs_path = make_absolute(path);
+    if (abs_path.has_error()) {
+        return RES_TRACE(abs_path.error());
+    }
+
+    this->local_state_->path = abs_path.value();
+
+    return res::success;
 }
 
 res::result_t channel_t::send(const std::string& message) const {

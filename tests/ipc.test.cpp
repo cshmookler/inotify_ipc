@@ -5,5 +5,6 @@
 #include "../include/ipc.hpp"
 
 TEST(channel_test, make_channel) {
-    auto channel = iipc::make_channel("test_file");
+    std::filesystem::path path = "test_file";
+    auto channel = iipc::make_channel(path);
 }

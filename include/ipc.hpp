@@ -78,7 +78,7 @@ class channel_t {
     ~channel_t();
 
     /**
-     * @return the file path corresponding to this channel.
+     * @return the absolute path to the file corresponding to this channel.
      */
     [[nodiscard]] std::filesystem::path get_path() const;
 
@@ -86,8 +86,9 @@ class channel_t {
      * @brief Set the path to the file corresponding to this channel.
      *
      * @param[in] path - The file used when reading and writing messages.
+     * @return a result indicating success or failure.
      */
-    void set_path(const std::filesystem::path& path);
+    res::result_t set_path(const std::filesystem::path& path);
 
     /**
      * @brief Sends a message to other programs with the same channel path.
