@@ -28,6 +28,6 @@ int main() {
             return 1;
         }
 
-        std::cout << "message: '" << message.value() << "'\n";
+        std::cout << "received: '" << message.value() << "'\n";
     }
 }

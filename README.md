@@ -45,5 +45,5 @@ meson install
 
 - [X] Add a method for sending messages.
 - [X] Add a method for receiving messages.
-- [ ] Add more tests.
+- [X] Add more tests.
 - [X] Create an example involving two completely separate programs.

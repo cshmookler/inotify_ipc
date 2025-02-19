@@ -110,7 +110,7 @@ class channel_t {
      * determined.
      */
     [[nodiscard]] res::optional_t<bool> poll(
-      std::chrono::milliseconds timeout) const;
+      std::chrono::milliseconds timeout = std::chrono::milliseconds(0)) const;
 
     /**
      * @brief Read a file to get the last sent message.
