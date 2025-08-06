@@ -40,7 +40,7 @@ namespace iipc {
 
 class channel_t;
 
-[[nodiscard]] res::optional_t<channel_t> make_channel(
+[[nodiscard]] res::optional_t<channel_t> get_channel(
   const std::filesystem::path& path);
 
 /**
@@ -58,8 +58,7 @@ class channel_t {
     std::unique_ptr<local_state_t> local_state_;
 
     // Some functions require access to private members.
-    friend res::optional_t<channel_t> make_channel(
-      const std::filesystem::path&);
+    friend res::optional_t<channel_t> get_channel(const std::filesystem::path&);
 
     // Constructors
     channel_t(const local_state_t& local_state);

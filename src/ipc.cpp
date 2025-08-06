@@ -26,7 +26,7 @@ struct channel_t::local_state_t {
     int watcher_fd;
 };
 
-res::optional_t<std::filesystem::path> make_absolute(
+res::optional_t<std::filesystem::path> get_absolute(
   const std::filesystem::path& path) {
     if (path.is_absolute()) {
         return path;
@@ -36,33 +36,44 @@ res::optional_t<std::filesystem::path> make_absolute(
     auto abs_path = std::filesystem::absolute(path, error);
     if (error) {
         return RES_NEW_ERROR(
-          "Failed to make a relative path absolute.\n\trelative path: "
+          "Failed to get a relative path absolute.\n\trelative path: "
           + path.string() + "\n\terror: " + error.message());
     }
     return abs_path;
 }
 
-[[nodiscard]] res::optional_t<channel_t> make_channel(
+res::result_t ensure_exists(const std::filesystem::path& path) {
+    if (! std::filesystem::exists(path)) {
+        // Attempt to create the file if it does not exist.
+        std::ofstream file{ path };
+        if (! file.is_open()) {
+            return RES_NEW_ERROR(
+              "Failed to create a file at the given path.\n\tpath: '"
+              + path.string() + "'");
+        }
+    }
+
+    if (! std::filesystem::is_regular_file(path)) {
+        return RES_NEW_ERROR(
+          "The path exists but is not a regular file.\n\tpath: '"
+          + path.string() + "'");
+    }
+
+    return res::success;
+}
+
+[[nodiscard]] res::optional_t<channel_t> get_channel(
   const std::filesystem::path& path) {
     // Ensure that the path to the channel file is absolute.
-    auto abs_path = make_absolute(path);
+    auto abs_path = get_absolute(path);
     if (abs_path.has_error()) {
         return RES_TRACE(abs_path.error());
     }
 
     // Ensure that the channel file exists.
-    if (! std::filesystem::exists(abs_path.value())) {
-        // Attempt to create the channel file if it does not exist.
-        std::ofstream file{ abs_path.value() };
-        if (! file.is_open()) {
-            return RES_NEW_ERROR("Failed to create the channel file.\n\tfile: '"
-              + abs_path->string() + "'");
-        }
-    }
-    if (! std::filesystem::is_regular_file(abs_path.value())) {
-        return RES_NEW_ERROR(
-          "The channel path exists but is not a regular file.\n\tpath: '"
-          + abs_path->string() + "'");
+    auto result = ensure_exists(abs_path.value());
+    if (result.failure()) {
+        return RES_TRACE(result.error());
     }
 
     if (channel_t::global_state == nullptr) {
@@ -142,9 +153,16 @@ std::filesystem::path channel_t::get_path() const {
 }
 
 res::result_t channel_t::set_path(const std::filesystem::path& path) {
-    auto abs_path = make_absolute(path);
+    // Ensure that the path to the channel file is absolute.
+    auto abs_path = get_absolute(path);
     if (abs_path.has_error()) {
         return RES_TRACE(abs_path.error());
+    }
+
+    // Ensure that the channel file exists.
+    auto result = ensure_exists(abs_path.value());
+    if (result.failure()) {
+        return RES_TRACE(result.error());
     }
 
     this->local_state_->path = abs_path.value();

@@ -46,7 +46,9 @@ dep_gtest_main = dependency(
 
 tests = [
     'version',
-    'ipc',
+    'get_channel',
+    'channel_set_path',
+    'channel_send_receive',
 ]
 
 if dep_gtest_main.found()

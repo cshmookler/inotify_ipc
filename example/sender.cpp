@@ -6,7 +6,7 @@
 #include "../include/ipc.hpp"
 
 int main() {
-    auto channel = iipc::make_channel("example");
+    auto channel = iipc::get_channel("example");
     if (channel.has_error()) {
         std::cout << channel.error().string() << '\n';
         return 1;
