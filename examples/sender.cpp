@@ -3,7 +3,7 @@
 #include <thread>
 
 // External includes
-#include "../include/ipc.hpp"
+#include "../include/iipc.hpp"
 
 int main() {
     auto channel = iipc::get_channel("example");

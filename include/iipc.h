@@ -1,5 +1,3 @@
-#pragma once
-
 /*****************************************************************************/
 /*  Copyright (c) 2025 Caden Shmookler                                       */
 /*                                                                           */
@@ -21,16 +19,37 @@
 /*     distribution.                                                         */
 /*****************************************************************************/
 
-/**
- * @file version.hpp
- * @author Caden Shmookler (cshmookler@gmail.com)
- * @brief The installed version of this library.
- * @date 2025-01-19
- */
+#ifndef IIPC_IIPC_H
+#define IIPC_IIPC_H
 
-namespace iipc {
+#ifdef __cplusplus
+    #include "iipc.hpp"
+#endif
 
-constexpr inline const char* compiletime_version = "@version@";
-const char* get_runtime_version();
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-} // namespace iipc
+void iipc_string_free(char* error);
+
+#ifdef __cplusplus
+using iipc_channel_t = iipc::channel_t;
+#else
+typedef struct iipc_channel_t iipc_channel_t;
+#endif
+iipc_channel_t* iipc_get_channel(const char* path, char** error);
+void iipc_channel_free(iipc_channel_t* channel);
+char* iipc_channel_get_path(iipc_channel_t* channel, char** error);
+void iipc_channel_set_path(
+  iipc_channel_t* channel, const char* path, char** error);
+void iipc_channel_send(
+  iipc_channel_t* channel, const char* message, char** error);
+int iipc_channel_poll(
+  iipc_channel_t* channel, unsigned long timeout_ms, char** error);
+char* iipc_channel_receive(iipc_channel_t* channel, char** error);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
+#endif // IIPC_IIPC_H

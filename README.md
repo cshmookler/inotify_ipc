@@ -47,3 +47,4 @@ meson install
 - [X] Add a method for receiving messages.
 - [X] Add more tests.
 - [X] Create an example involving two completely separate programs.
+- [X] Add C bindings.

@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 
 // Local includes
-#include "../include/ipc.hpp"
+#include "../include/iipc.hpp"
 
 TEST(channel_test, channel_set_path) {
     std::filesystem::path path_1 = "test_channel_set_path_file_1";

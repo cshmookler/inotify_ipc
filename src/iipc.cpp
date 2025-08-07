@@ -11,7 +11,7 @@
 #include <unistd.h>
 
 // Local includes
-#include "../include/ipc.hpp"
+#include "../include/iipc.hpp"
 
 namespace iipc {
 

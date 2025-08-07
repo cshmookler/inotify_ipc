@@ -1,10 +1,10 @@
 // Local includes
-#include "../build/version.hpp"
+#include "../build/version.h"
 
-namespace iipc {
+extern "C" {
 
-const char* get_runtime_version() {
-    return ::iipc::compiletime_version;
+const char* iipc_get_runtime_version() {
+    return iipc_compiletime_version;
 }
 
-} // namespace iipc
+} // extern "C"

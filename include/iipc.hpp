@@ -1,5 +1,3 @@
-#pragma once
-
 /*****************************************************************************/
 /*  Copyright (c) 2025 Caden Shmookler                                       */
 /*                                                                           */
@@ -21,12 +19,7 @@
 /*     distribution.                                                         */
 /*****************************************************************************/
 
-/**
- * @file notify.hpp
- * @author Caden Shmookler (cshmookler@gmail.com)
- * @brief Utilities for notifying the status bar that it is out-of-date.
- * @date 2024-01-19
- */
+#pragma once
 
 // Standard includes
 #include <chrono>
