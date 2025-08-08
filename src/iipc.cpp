@@ -140,7 +140,7 @@ channel_t::~channel_t() {
         // Assume destruction always succeeds.
     }
 
-    if (channel_t::global_state.use_count() == 2) {
+    if (channel_t::global_state.use_count() == 1) {
         // Attempt to uninitialize inotify when there aren't any open channels.
         if (close(channel_t::global_state->inotify_fd) < 0) {
             // Assume destruction always succeeds.
